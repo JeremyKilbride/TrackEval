@@ -21,7 +21,7 @@ class Kitti2DBox(_BaseDataset):
             'TRACKERS_FOLDER': os.path.join(code_path, 'data/trackers/kitti/kitti_2d_box_train/'),  # Trackers location
             'OUTPUT_FOLDER': None,  # Where to save eval results (if None, same as TRACKERS_FOLDER)
             'TRACKERS_TO_EVAL': None,  # Filenames of trackers to eval (if None, all in folder)
-            'CLASSES_TO_EVAL': ['car', 'pedestrian'],  # Valid: ['car', 'pedestrian']
+            'CLASSES_TO_EVAL': ['car', 'pedestrian','forklift'],  # Valid: ['car', 'pedestrian']
             'SPLIT_TO_EVAL': 'training',  # Valid: 'training', 'val', 'training_minus_val', 'test'
             'INPUT_AS_ZIP': False,  # Whether tracker input files are zipped
             'PRINT_CONFIG': True,  # Whether to print current config
@@ -54,13 +54,13 @@ class Kitti2DBox(_BaseDataset):
         self.min_height = 25
 
         # Get classes to eval
-        self.valid_classes = ['car', 'pedestrian']
+        self.valid_classes = ['car', 'pedestrian', 'forklift']
         self.class_list = [cls.lower() if cls.lower() in self.valid_classes else None
                            for cls in self.config['CLASSES_TO_EVAL']]
         if not all(self.class_list):
             raise TrackEvalException('Attempted to evaluate an invalid class. Only classes [car, pedestrian] are valid.')
         self.class_name_to_class_id = {'car': 1, 'van': 2, 'truck': 3, 'pedestrian': 4, 'person': 5,  # person sitting
-                                       'cyclist': 6, 'tram': 7, 'misc': 8, 'dontcare': 9, 'car_2': 1}
+                'cyclist': 6, 'tram': 7, 'misc': 8, 'dontcare': 9, 'car_2': 1, 'forklift':10}
 
         # Get sequences to eval and check gt files exist
         self.seq_list = []
@@ -274,6 +274,8 @@ class Kitti2DBox(_BaseDataset):
             distractor_classes = [self.class_name_to_class_id['person']]
         elif cls == 'car':
             distractor_classes = [self.class_name_to_class_id['van']]
+        elif cls== 'forklift':
+            distractor_classes = []
         else:
             raise (TrackEvalException('Class %s is not evaluatable' % cls))
         cls_id = self.class_name_to_class_id[cls]
